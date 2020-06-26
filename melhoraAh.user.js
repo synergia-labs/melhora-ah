@@ -126,6 +126,21 @@ color: #333  !important;
     background-color: #e6e6e6  !important;
     border-color: #adadad  !important;
 }
+
+body>table {
+    width: 100%;
+    padding-right: 10px;
+}
+body>table>tbody>tr>td:nth-child(1) {
+    width: 280px;
+}
+body>table>tbody>tr>td:nth-child(4)>table {
+    width: 100%;
+}
+#Divdistribuicao {
+    width: 100% !important;
+    padding-right: 10px;
+}
             `);
 
 (function () {
