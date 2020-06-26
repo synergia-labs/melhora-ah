@@ -128,7 +128,21 @@ color: #333  !important;
 }
 
 #ajusteBancoDeHoras {
-width: 70px;
+    width: 70px;
+}
+
+.secao-ajuste-banco-de-horas label {
+    color: #545454;
+}
+.titulo-secao {
+    color: #649917;
+    font-weight: 600;
+}
+.simbolo-conversao {
+    font-size: 28px;
+    line-height: 14px;
+    top: 4px;
+    position: relative;
 }
             `);
 
@@ -273,41 +287,66 @@ width: 70px;
   function adicionarFuncionalidadeDeAjusteDeBancoDeHoras() {
       $('a[href="Banco_de_horas.jsp"]').before(
 `
+<span class="secao-ajuste-banco-de-horas">
+<span>
+  <span class="titulo-secao">Ajuste no Banco de Horas</span>
+  <br>
+</span>
 <span title="O valor de ajuste informado será gravado apenas no navegador, portanto, anote esse valor. Esse valor poderá ser perdido se alguma limpeza de cache mais bruta for realizada.">
-  <label for="ajusteBancoDeHoras">Ajuste no Banco de Horas: </label><input type="number" id="ajusteBancoDeHoras" step="any" min="-999" max="999">
+  <label for="ajusteBancoDeHoras">Ajuste: </label>
+  <input type="number" id="ajusteBancoDeHoras" step="any" min="-999" max="999">
+  <span class="simbolo-conversao">➟</span>
+  <span id="ajusteBancoDeHorasFormatado"></span>
   <br>
 </span>
 <span title="O saldo ajustado é o saldo oficial de banco de horas exibido abaixo subtraído do ajuste informado acima.">
-  <label>Saldo ajustado: </label><span id="saldoBancoDeHorasAjustado"></span>
+  <label>Saldo ajustado: </label>
+  <span id="saldoBancoDeHorasAjustado"></span>
+  <span class="simbolo-conversao">➟</span>
+  <span id="saldoBancoDeHorasAjustadoFormatado"></span>
   <br>
+</span>
 </span>
 <hr>
 `);
       const $inputAjusteBancoDeHoras = $('#ajusteBancoDeHoras');
+      const $spanAjusteBancoDeHorasFormatado = $('#ajusteBancoDeHorasFormatado');
       const keyLocalStorage = 'ajusteBancoDeHoras';
       let valorAjusteBancoDeHoras = localStorage.getItem(keyLocalStorage);
       if (valorAjusteBancoDeHoras) {
           $inputAjusteBancoDeHoras.val(valorAjusteBancoDeHoras);
+          $spanAjusteBancoDeHorasFormatado.text(converteDecimalParaHoras(Number.parseFloat(valorAjusteBancoDeHoras)));
       }
       $inputAjusteBancoDeHoras.on('change', () => {
-          localStorage.setItem(keyLocalStorage, $inputAjusteBancoDeHoras.val());
+          const valor = $inputAjusteBancoDeHoras.val();
+          $spanAjusteBancoDeHorasFormatado.text(converteDecimalParaHoras(Number.parseFloat(valor)));
+          localStorage.setItem(keyLocalStorage, valor);
           verificaBancoDeHoras();
       });
   }
   function atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes, styleSaldoBancoDeHorasAjustado) {
       const $inputAjusteBancoDeHoras = $('#ajusteBancoDeHoras');
       const $spanSaldoBancoDeHorasAjustado = $('#saldoBancoDeHorasAjustado');
+      const $spanSaldoBancoDeHorasAjustadoFormatado = $('#saldoBancoDeHorasAjustadoFormatado');
 
       let valorAjusteBancoDeHoras = Number.parseFloat($inputAjusteBancoDeHoras.val());
-      let valorSaldoBancoDeHorasAjustado = converteDecimalParaHoras(saldoDeHorasDoMes - valorAjusteBancoDeHoras);
+      let valorSaldoBancoDeHorasAjustado = saldoDeHorasDoMes - valorAjusteBancoDeHoras;
+      let valorSaldoBancoDeHorasAjustadoFormatado = converteDecimalParaHoras(valorSaldoBancoDeHorasAjustado);
 
       if (valorAjusteBancoDeHoras) {
           $spanSaldoBancoDeHorasAjustado.css(styleSaldoBancoDeHorasAjustado)
-          $spanSaldoBancoDeHorasAjustado.text(valorSaldoBancoDeHorasAjustado);
-          $spanSaldoBancoDeHorasAjustado.parent().show();
+          $spanSaldoBancoDeHorasAjustadoFormatado.css(styleSaldoBancoDeHorasAjustado)
+
+          $spanSaldoBancoDeHorasAjustado.text(formatarHoraDecimal(valorSaldoBancoDeHorasAjustado));
+          $spanSaldoBancoDeHorasAjustadoFormatado.text(valorSaldoBancoDeHorasAjustadoFormatado);
+
+          $spanSaldoBancoDeHorasAjustadoFormatado.parent().show();
       } else {
-          $spanSaldoBancoDeHorasAjustado.parent().hide();
+          $spanSaldoBancoDeHorasAjustadoFormatado.parent().hide();
       }
+  }
+  function formatarHoraDecimal(valor) {
+      return new Intl.NumberFormat('en-US', { maximumFractionDigits: 4 }).format(valor);
   }
 
   $(document).ready(function () {
