@@ -126,6 +126,10 @@ color: #333  !important;
     background-color: #e6e6e6  !important;
     border-color: #adadad  !important;
 }
+
+#ajusteBancoDeHoras {
+width: 70px;
+}
             `);
 
 (function () {
@@ -269,11 +273,11 @@ color: #333  !important;
   function adicionarFuncionalidadeDeAjusteDeBancoDeHoras() {
       $('a[href="Banco_de_horas.jsp"]').before(
 `
-<span>
-  <label for="ajusteBancoDeHoras">Ajuste no Banco de Horas: </label><input type="number" id="ajusteBancoDeHoras" min="-999" max="999">
+<span title="O valor de ajuste informado será gravado apenas no navegador, portanto, anote esse valor. Esse valor poderá ser perdido se alguma limpeza de cache mais bruta for realizada.">
+  <label for="ajusteBancoDeHoras">Ajuste no Banco de Horas: </label><input type="number" id="ajusteBancoDeHoras" step="any" min="-999" max="999">
   <br>
 </span>
-<span>
+<span title="O saldo ajustado é o saldo oficial de banco de horas exibido abaixo subtraído do ajuste informado acima.">
   <label>Saldo ajustado: </label><span id="saldoBancoDeHorasAjustado"></span>
   <br>
 </span>
