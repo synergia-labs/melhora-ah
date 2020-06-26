@@ -206,6 +206,7 @@ color: #333  !important;
               };
             }
             $('#saldoBancoDeHoras').css(style).text('(' + converteDecimalParaHoras(saldoDeHorasDoMes) + ')');
+            atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes, style);
           }
         });
       }
@@ -265,7 +266,49 @@ color: #333  !important;
     });
   }
 
+  function adicionarFuncionalidadeDeAjusteDeBancoDeHoras() {
+      $('a[href="Banco_de_horas.jsp"]').before(
+`
+<span>
+  <label for="ajusteBancoDeHoras">Ajuste no Banco de Horas: </label><input type="number" id="ajusteBancoDeHoras" min="-999" max="999">
+  <br>
+</span>
+<span>
+  <label>Saldo ajustado: </label><span id="saldoBancoDeHorasAjustado"></span>
+  <br>
+</span>
+<hr>
+`);
+      const $inputAjusteBancoDeHoras = $('#ajusteBancoDeHoras');
+      const keyLocalStorage = 'ajusteBancoDeHoras';
+      let valorAjusteBancoDeHoras = localStorage.getItem(keyLocalStorage);
+      if (valorAjusteBancoDeHoras) {
+          $inputAjusteBancoDeHoras.val(valorAjusteBancoDeHoras);
+      }
+      $inputAjusteBancoDeHoras.on('change', () => {
+          localStorage.setItem(keyLocalStorage, $inputAjusteBancoDeHoras.val());
+          verificaBancoDeHoras();
+      });
+  }
+  function atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes, styleSaldoBancoDeHorasAjustado) {
+      const $inputAjusteBancoDeHoras = $('#ajusteBancoDeHoras');
+      const $spanSaldoBancoDeHorasAjustado = $('#saldoBancoDeHorasAjustado');
+
+      let valorAjusteBancoDeHoras = Number.parseFloat($inputAjusteBancoDeHoras.val());
+      let valorSaldoBancoDeHorasAjustado = converteDecimalParaHoras(saldoDeHorasDoMes - valorAjusteBancoDeHoras);
+
+      if (valorAjusteBancoDeHoras) {
+          $spanSaldoBancoDeHorasAjustado.css(styleSaldoBancoDeHorasAjustado)
+          $spanSaldoBancoDeHorasAjustado.text(valorSaldoBancoDeHorasAjustado);
+          $spanSaldoBancoDeHorasAjustado.parent().show();
+      } else {
+          $spanSaldoBancoDeHorasAjustado.parent().hide();
+      }
+  }
+
   $(document).ready(function () {
+
+    adicionarFuncionalidadeDeAjusteDeBancoDeHoras();
 
     verificaSeTemTarefaAtiva();
     $('a[href="Banco_de_horas.jsp"]').after(' <span id="saldoBancoDeHoras"></span>');
