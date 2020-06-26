@@ -14,7 +14,7 @@
 // @run-at document-start
 // ==/UserScript==
 
-var newCSS = GM_getResourceText("animateCSS");
+let newCSS = GM_getResourceText("animateCSS");
 GM_addStyle(newCSS);
 
 GM_addStyle( `
@@ -163,7 +163,7 @@ color: #333  !important;
 
 
 
-  var horasNoBancoDeHorasGeral, saldoDeHorasDoMes, horasTrabalhadasDoDia, dedicacaoDiaria;
+  let horasNoBancoDeHorasGeral, saldoDeHorasDoMes, horasTrabalhadasDoDia, dedicacaoDiaria;
 
   if (!localStorage.dedicacaoDiaria) {
     localStorage.dedicacaoDiaria = prompt("Quantas horas você trabalha por dia?");
@@ -172,7 +172,7 @@ color: #333  !important;
 
 
   function converteDecimalParaHoras(horaDecimal) {
-    var horasString = parseInt(horaDecimal, 10) + ':' + ("0" + parseInt(Math.abs(horaDecimal) % 1 * 60, 10)).slice(-2);
+    const horasString = parseInt(horaDecimal, 10) + ':' + ("0" + parseInt(Math.abs(horaDecimal) % 1 * 60, 10)).slice(-2);
     if(horaDecimal < 0 && horaDecimal > -1) {
       return '-' + horasString;
     }
@@ -208,7 +208,7 @@ color: #333  !important;
     $.ajax({
       url: '//ah.synergia.dcc.ufmg.br/ah/Banco_de_horas.jsp',
       success: function (data) {
-        var d, mesAtual, anoAtual;
+        let d, mesAtual, anoAtual;
         horasNoBancoDeHorasGeral = parseFloat($('b:last', data).parent().contents().filter(function () { return this.nodeType === 3; })[1].data);
 
         d = new Date();
@@ -240,8 +240,8 @@ color: #333  !important;
     $.ajax({
       url: '//ah.synergia.dcc.ufmg.br/ah/horas_trabalhadas_do_dia.jsp',
       success: function (data) {
-        var textosDaPagina = $('b:last', data).parent().contents().filter(function () {return (this.nodeType === 3 && this.nodeValue.endsWith("hrs ")); });
-        var horaDeInicio = $('b:last', data).parent().contents().filter(function () {return (this.nodeType === 3); });
+        let textosDaPagina = $('b:last', data).parent().contents().filter(function () {return (this.nodeType === 3 && this.nodeValue.endsWith("hrs ")); });
+        let horaDeInicio = $('b:last', data).parent().contents().filter(function () {return (this.nodeType === 3); });
         horasTrabalhadasDoDia = parseFloat(textosDaPagina[0].data);
         $('#horasTrabalhadasDoDia').text('(' + converteDecimalParaHoras(horasTrabalhadasDoDia) + ')');
         console.log($('.tickbg'));
@@ -254,7 +254,7 @@ color: #333  !important;
   }
 
   $(window).on("blur focus", function (e) {
-    var prevType = $(this).data("prevType");
+    let prevType = $(this).data("prevType");
 
     if (prevType !== e.type) {   //  reduce double fire issues
       switch (e.type) {
@@ -276,7 +276,7 @@ color: #333  !important;
       url: '//ah.synergia.dcc.ufmg.br/ah/remove_tarefa.jsp',
       success: function (data) {
         //console.log(data);
-        var textoDeNenhumaTarefaAtiva = $(data).text();
+        let textoDeNenhumaTarefaAtiva = $(data).text();
         //console.log(textoDeNenhumaTarefaAtiva);
         if (textoDeNenhumaTarefaAtiva.indexOf("Tarefa Ativa iniciada em:") >= 0) {
           $('body > table > tbody a:contains("Finaliza Tarefa")').show().addClass('btn btn-finalizar');
@@ -395,10 +395,10 @@ color: #333  !important;
     const padraoIssueJira = /((?!([A-Z0-9a-z]{1,10})-?$)[A-Z]{1}[A-Z0-9]+-\d+)/g;
     const padraoHoraDecimal = /^[+-]?\d+(\.\d+)?$/;
 
-    for(var i = 0; i < $('td.relatorio').length; i++){
-      var $elemento = $(`td.relatorio:eq(${i})`);
-      var idJira = $elemento.text().match(padraoIssueJira);
-      var horaDecimal = $elemento.text().match(padraoHoraDecimal);
+    for(let i = 0; i < $('td.relatorio').length; i++){
+      let $elemento = $(`td.relatorio:eq(${i})`);
+      let idJira = $elemento.text().match(padraoIssueJira);
+      let horaDecimal = $elemento.text().match(padraoHoraDecimal);
       if(idJira !== null){
         $elemento.wrapInner(`<a href="//jira.synergia.dcc.ufmg.br/browse/${idJira[0]}"></a>`);
       }
