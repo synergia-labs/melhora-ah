@@ -180,6 +180,30 @@ color: #333  !important;
   }
 
 
+  function estiloSaldo(saldoDeHorasTotal) {
+      let style;
+      if (Math.abs(saldoDeHorasTotal) > dedicacaoDiaria * 2) {
+          if (saldoDeHorasTotal > 0) {
+              style = {
+                  color: "blue",
+                  fontWeight: "bold"
+              };
+          } else {
+              style = {
+                  color: "red",
+                  fontWeight: "bold"
+              };
+          }
+      } else {
+          style = {
+              color: "black",
+              fontWeight: "normal"
+          };
+      }
+      return style;
+  }
+
+
   function verificaBancoDeHoras() {
     $.ajax({
       url: '//ah.synergia.dcc.ufmg.br/ah/Banco_de_horas.jsp',
@@ -201,30 +225,13 @@ color: #333  !important;
             txtDescricao: ''
           },
           success: function (data) {
-            var textosDaPagina, style;
+            let textosDaPagina;
             textosDaPagina = $('b:last', data).parent().contents().filter(function () { return this.nodeType === 3; });
             saldoDeHorasDoMes = parseFloat((textosDaPagina[textosDaPagina.length - 2].data).replace(' hrs','').replace(',','.'));
             saldoDeHorasDoMes += horasNoBancoDeHorasGeral;
-            if (Math.abs(saldoDeHorasDoMes) > dedicacaoDiaria * 2) {
-              if (saldoDeHorasDoMes > 0) {
-                style = {
-                  color: "blue",
-                  fontWeight: "bold"
-                };
-              } else {
-                style = {
-                  color: "red",
-                  fontWeight: "bold"
-                };
-              }
-            } else {
-              style = {
-                color: "black",
-                fontWeight: "normal"
-              };
-            }
+            const style = estiloSaldo(saldoDeHorasDoMes);
             $('#saldoBancoDeHoras').css(style).text('(' + converteDecimalParaHoras(saldoDeHorasDoMes) + ')');
-            atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes, style);
+            atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes);
           }
         });
       }
@@ -295,8 +302,10 @@ color: #333  !important;
 <span title="O valor de ajuste informado será gravado apenas no navegador, portanto, anote esse valor. Esse valor poderá ser perdido se alguma limpeza de cache mais bruta for realizada.">
   <label for="ajusteBancoDeHoras">Ajuste: </label>
   <input type="number" id="ajusteBancoDeHoras" step="any" min="-999" max="999">
-  <span class="simbolo-conversao">➟</span>
-  <span id="ajusteBancoDeHorasFormatado"></span>
+  <span id="containerAjusteBancoDeHorasFormatado">
+    <span class="simbolo-conversao">➟</span>
+    <span id="ajusteBancoDeHorasFormatado"></span>
+  </span>
   <br>
 </span>
 <span title="O saldo ajustado é o saldo oficial de banco de horas exibido abaixo subtraído do ajuste informado acima.">
@@ -310,39 +319,54 @@ color: #333  !important;
 <hr>
 `);
       const $inputAjusteBancoDeHoras = $('#ajusteBancoDeHoras');
-      const $spanAjusteBancoDeHorasFormatado = $('#ajusteBancoDeHorasFormatado');
       const keyLocalStorage = 'ajusteBancoDeHoras';
       let valorAjusteBancoDeHoras = localStorage.getItem(keyLocalStorage);
       if (valorAjusteBancoDeHoras) {
           $inputAjusteBancoDeHoras.val(valorAjusteBancoDeHoras);
-          $spanAjusteBancoDeHorasFormatado.text(converteDecimalParaHoras(Number.parseFloat(valorAjusteBancoDeHoras)));
+      } else {
+          $('#saldoBancoDeHorasAjustado').parent().hide();
       }
+      setAjusteBancoDeHorasFormatado(valorAjusteBancoDeHoras);
       $inputAjusteBancoDeHoras.on('change', () => {
           const valor = $inputAjusteBancoDeHoras.val();
-          $spanAjusteBancoDeHorasFormatado.text(converteDecimalParaHoras(Number.parseFloat(valor)));
+          setAjusteBancoDeHorasFormatado(valor);
           localStorage.setItem(keyLocalStorage, valor);
           verificaBancoDeHoras();
       });
   }
-  function atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes, styleSaldoBancoDeHorasAjustado) {
+  function setAjusteBancoDeHorasFormatado(valorAjusteBancoDeHoras) {
+      const $containerAjusteBancoDeHorasFormatado = $('#containerAjusteBancoDeHorasFormatado');
+      const $spanAjusteBancoDeHorasFormatado = $('#ajusteBancoDeHorasFormatado');
+      if (valorAjusteBancoDeHoras) {
+          $spanAjusteBancoDeHorasFormatado.text(converteDecimalParaHoras(Number.parseFloat(valorAjusteBancoDeHoras)));
+          $containerAjusteBancoDeHorasFormatado.show();
+      } else {
+          $containerAjusteBancoDeHorasFormatado.hide();
+          $spanAjusteBancoDeHorasFormatado.text('');
+      }
+  }
+  function atualizarSaldoBancoDeHorasAjustado(saldoDeHorasDoMes) {
       const $inputAjusteBancoDeHoras = $('#ajusteBancoDeHoras');
       const $spanSaldoBancoDeHorasAjustado = $('#saldoBancoDeHorasAjustado');
       const $spanSaldoBancoDeHorasAjustadoFormatado = $('#saldoBancoDeHorasAjustadoFormatado');
 
-      let valorAjusteBancoDeHoras = Number.parseFloat($inputAjusteBancoDeHoras.val());
-      let valorSaldoBancoDeHorasAjustado = saldoDeHorasDoMes - valorAjusteBancoDeHoras;
-      let valorSaldoBancoDeHorasAjustadoFormatado = converteDecimalParaHoras(valorSaldoBancoDeHorasAjustado);
+      const valorAjusteBancoDeHorasString = $inputAjusteBancoDeHoras.val();
 
-      if (valorAjusteBancoDeHoras) {
+      if (valorAjusteBancoDeHorasString) {
+          let valorAjusteBancoDeHoras = Number.parseFloat($inputAjusteBancoDeHoras.val());
+          let valorSaldoBancoDeHorasAjustado = saldoDeHorasDoMes - valorAjusteBancoDeHoras;
+          let valorSaldoBancoDeHorasAjustadoFormatado = converteDecimalParaHoras(valorSaldoBancoDeHorasAjustado);
+          const styleSaldoBancoDeHorasAjustado = estiloSaldo(valorSaldoBancoDeHorasAjustado);
+
           $spanSaldoBancoDeHorasAjustado.css(styleSaldoBancoDeHorasAjustado)
           $spanSaldoBancoDeHorasAjustadoFormatado.css(styleSaldoBancoDeHorasAjustado)
 
           $spanSaldoBancoDeHorasAjustado.text(formatarHoraDecimal(valorSaldoBancoDeHorasAjustado));
           $spanSaldoBancoDeHorasAjustadoFormatado.text(valorSaldoBancoDeHorasAjustadoFormatado);
 
-          $spanSaldoBancoDeHorasAjustadoFormatado.parent().show();
+          $spanSaldoBancoDeHorasAjustado.parent().show();
       } else {
-          $spanSaldoBancoDeHorasAjustadoFormatado.parent().hide();
+          $spanSaldoBancoDeHorasAjustado.parent().hide();
       }
   }
   function formatarHoraDecimal(valor) {
