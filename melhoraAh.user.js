@@ -131,12 +131,16 @@ color: #333  !important;
     width: 70px;
 }
 
+#saldoBancoDeHorasAjustadoFormatado {
+    font-weight: bold !important;
+}
+
 .secao-ajuste-banco-de-horas label {
     color: #545454;
 }
 .titulo-secao {
     color: #649917;
-    font-weight: 600;
+    font-weight: bold;
 }
 .simbolo-conversao {
     font-size: 28px;
