@@ -323,7 +323,7 @@ body>table>tbody>tr>td:nth-child(4)>table {
   </span>
   <br>
 </span>
-<span title="O saldo ajustado é o saldo oficial de banco de horas exibido abaixo subtraído do ajuste informado acima.">
+<span title="O saldo ajustado é a soma do saldo oficial do banco de horas exibido abaixo com o ajuste informado acima.">
   <label>Saldo ajustado: </label>
   <span id="saldoBancoDeHorasAjustado"></span>
   <span class="simbolo-conversao">➟</span>
@@ -369,7 +369,7 @@ body>table>tbody>tr>td:nth-child(4)>table {
 
       if (valorAjusteBancoDeHorasString) {
           let valorAjusteBancoDeHoras = Number.parseFloat($inputAjusteBancoDeHoras.val());
-          let valorSaldoBancoDeHorasAjustado = saldoDeHorasDoMes - valorAjusteBancoDeHoras;
+          let valorSaldoBancoDeHorasAjustado = saldoDeHorasDoMes + valorAjusteBancoDeHoras;
           let valorSaldoBancoDeHorasAjustadoFormatado = converteDecimalParaHoras(valorSaldoBancoDeHorasAjustado);
           const styleSaldoBancoDeHorasAjustado = estiloSaldo(valorSaldoBancoDeHorasAjustado);
 
